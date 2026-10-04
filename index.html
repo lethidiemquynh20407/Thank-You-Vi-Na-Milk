@@ -1,0 +1,3219 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Thank You</title>
+
+
+<style>
+
+/* =====================================================
+   CƠ BẢN
+===================================================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+
+html,
+body{
+
+    width:100%;
+    height:100%;
+
+    overflow:hidden;
+
+    background:#01030b;
+}
+
+
+body{
+
+    transition:
+        background 1s ease;
+
+}
+
+
+/* =====================================================
+   CANVAS
+===================================================== */
+
+canvas{
+
+    position:fixed;
+
+    inset:0;
+
+    width:100%;
+    height:100%;
+
+    display:block;
+
+}
+
+
+/* =====================================================
+   KHUNG CHỮ Ở GIỮA
+===================================================== */
+
+.message{
+
+    position:fixed;
+
+    left:50%;
+    top:50%;
+
+    transform:
+        translate(-50%,-50%);
+
+    width:min(90vw,900px);
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    justify-content:center;
+
+    text-align:center;
+
+    z-index:50;
+
+    pointer-events:none;
+
+}
+
+
+/* =====================================================
+   LỜI CHÚC
+===================================================== */
+
+.time-greeting{
+
+    width:100%;
+
+    margin-bottom:18px;
+
+    text-align:center;
+
+    white-space:nowrap;
+
+    /*
+       Segoe UI giúp tiếng Việt hiển thị
+       dấu ổn định trên Windows.
+    */
+
+    font-family:
+        "Segoe UI",
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    font-size:
+        clamp(
+            17px,
+            2.4vw,
+            30px
+        );
+
+    font-weight:600;
+
+    line-height:1.3;
+
+    letter-spacing:0;
+
+    color:#fff8d8;
+
+    text-rendering:
+        optimizeLegibility;
+
+    text-shadow:
+
+        0 0 8px
+        rgba(255,255,255,.8),
+
+        0 0 18px
+        rgba(255,220,100,.5);
+
+}
+
+
+/* =====================================================
+   CÂU TIẾNG ANH
+===================================================== */
+
+.message h1{
+
+    width:100%;
+
+    text-align:center;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size:
+        clamp(
+            24px,
+            4.5vw,
+            58px
+        );
+
+    font-weight:normal;
+
+    line-height:1.3;
+
+    color:white;
+
+    text-shadow:
+
+        0 0 10px
+        rgba(255,255,255,.7),
+
+        0 0 25px
+        rgba(255,220,100,.25);
+
+}
+
+
+/* =====================================================
+   BAN NGÀY
+===================================================== */
+
+body.day-mode .time-greeting{
+
+    color:#315d86;
+
+    font-family:
+        "Segoe UI",
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    text-shadow:
+
+        0 2px 8px
+        rgba(255,255,255,.95),
+
+        0 0 18px
+        rgba(255,220,100,.4);
+
+}
+
+
+body.day-mode .message h1{
+
+    color:#ffffff;
+
+    text-shadow:
+
+        0 2px 8px
+        rgba(255,255,255,.95),
+
+        0 3px 18px
+        rgba(60,100,140,.25);
+
+}
+
+
+/* =====================================================
+   ĐIỆN THOẠI
+===================================================== */
+
+@media(max-width:600px){
+
+    .message{
+
+        width:88vw;
+
+    }
+
+
+    .time-greeting{
+
+        font-size:
+            clamp(
+                15px,
+                4.3vw,
+                23px
+            );
+
+        margin-bottom:14px;
+
+    }
+
+
+    .message h1{
+
+        font-size:
+            clamp(
+                21px,
+                6vw,
+                34px
+            );
+
+        line-height:1.25;
+
+    }
+
+}
+
+
+/* =====================================================
+   ĐIỆN THOẠI RẤT NHỎ
+===================================================== */
+
+@media(max-width:380px){
+
+    .message{
+
+        width:90vw;
+
+    }
+
+
+    .time-greeting{
+
+        font-size:14px;
+
+    }
+
+
+    .message h1{
+
+        font-size:20px;
+
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     CANVAS
+===================================================== -->
+
+<canvas id="canvas"></canvas>
+
+
+<!-- =====================================================
+     CHỮ Ở GIỮA
+===================================================== -->
+
+<div class="message">
+
+    <div
+        id="timeGreeting"
+        class="time-greeting"
+    >
+        Chúc thầy buổi tối vui vẻ
+    </div>
+
+
+    <h1>
+        Thank you for staying with me until the very last note—it means more than you know.
+    </h1>
+
+</div>
+
+
+<script>
+
+/* =====================================================
+   CANVAS
+===================================================== */
+
+const canvas =
+    document.getElementById("canvas");
+
+
+const ctx =
+    canvas.getContext("2d");
+
+
+const timeGreeting =
+    document.getElementById(
+        "timeGreeting"
+    );
+
+
+let W = 0;
+let H = 0;
+
+let DPR = 1;
+
+let isDay = false;
+
+
+/* =====================================================
+   TÊN THÀNH VIÊN
+
+   DIỄM QUỲNH LUÔN LÀ CHIM DẪN ĐẦU
+===================================================== */
+
+const names = [
+
+    "Diễm Quỳnh",
+
+    "Tuyết Phi",
+
+    "Nhã Thi",
+
+    "Trúc Lam",
+
+    "Thảo Vy"
+
+];
+
+
+/* =====================================================
+   THỜI GIAN
+===================================================== */
+
+function updateTimeMode(){
+
+    const now =
+        new Date();
+
+
+    const hour =
+        now.getHours();
+
+
+    const minute =
+        now.getMinutes();
+
+
+    const totalMinutes =
+        hour * 60 + minute;
+
+
+    /*
+    ============================================
+    05:00 → 10:00
+    ============================================
+    */
+
+    if(
+
+        totalMinutes >= 300 &&
+
+        totalMinutes <= 600
+
+    ){
+
+        timeGreeting.textContent =
+
+            "\u0043\u0068\u00FA\u0063 " +
+
+            "\u0074\u0068\u1EA7\u0079 " +
+
+            "\u0062\u0075\u1ED5\u0069 " +
+
+            "\u0073\u00E1\u006E\u0067 " +
+
+            "\u0076\u0075\u0069 " +
+
+            "\u0076\u1EBB";
+
+    }
+
+
+    /*
+    ============================================
+    10:01 → 13:00
+    ============================================
+    */
+
+    else if(
+
+        totalMinutes >= 601 &&
+
+        totalMinutes <= 780
+
+    ){
+
+        timeGreeting.textContent =
+
+            "\u0043\u0068\u00FA\u0063 " +
+
+            "\u0074\u0068\u1EA7\u0079 " +
+
+            "\u0062\u0075\u1ED5\u0069 " +
+
+            "\u0074\u0072\u01B0\u0061 " +
+
+            "\u0076\u0075\u0069 " +
+
+            "\u0076\u1EBB";
+
+    }
+
+
+    /*
+    ============================================
+    13:01 → 17:00
+    ============================================
+    */
+
+    else if(
+
+        totalMinutes >= 781 &&
+
+        totalMinutes <= 1020
+
+    ){
+
+        timeGreeting.textContent =
+
+            "\u0043\u0068\u00FA\u0063 " +
+
+            "\u0074\u0068\u1EA7\u0079 " +
+
+            "\u0062\u0075\u1ED5\u0069 " +
+
+            "\u0063\u0068\u0069\u1EC1\u0075 " +
+
+            "\u0076\u0075\u0069 " +
+
+            "\u0076\u1EBB";
+
+    }
+
+
+    /*
+    ============================================
+    17:01 → 04:59
+    ============================================
+    */
+
+    else{
+
+        timeGreeting.textContent =
+
+            "\u0043\u0068\u00FA\u0063 " +
+
+            "\u0074\u0068\u1EA7\u0079 " +
+
+            "\u0062\u0075\u1ED5\u0069 " +
+
+            "\u0074\u1ED1\u0069 " +
+
+            "\u0076\u0075\u0069 " +
+
+            "\u0076\u1EBB";
+
+    }
+
+
+    /*
+    ============================================
+    BAN NGÀY
+    ============================================
+
+    05:00 → 17:00
+    */
+
+    isDay =
+
+        totalMinutes >= 300 &&
+
+        totalMinutes <= 1020;
+
+
+    document.body.classList.toggle(
+
+        "day-mode",
+
+        isDay
+
+    );
+
+}
+
+
+/* Chạy ngay */
+
+updateTimeMode();
+
+
+/* Tự kiểm tra mỗi giây */
+
+setInterval(
+
+    updateTimeMode,
+
+    1000
+
+);
+
+
+/* =====================================================
+   RESIZE
+===================================================== */
+
+function resize(){
+
+    W =
+        window.innerWidth;
+
+
+    H =
+        window.innerHeight;
+
+
+    DPR =
+        Math.min(
+
+            window.devicePixelRatio || 1,
+
+            1.5
+
+        );
+
+
+    canvas.width =
+        W * DPR;
+
+
+    canvas.height =
+        H * DPR;
+
+
+    canvas.style.width =
+        W + "px";
+
+
+    canvas.style.height =
+        H + "px";
+
+
+    ctx.setTransform(
+
+        DPR,
+        0,
+        0,
+        DPR,
+        0,
+        0
+
+    );
+
+}
+
+
+window.addEventListener(
+
+    "resize",
+
+    resize
+
+);
+
+
+/* =====================================================
+   MẶT TRỜI
+===================================================== */
+
+function drawSun(){
+
+    const x =
+        W * .84;
+
+
+    const y =
+        H * .17;
+
+
+    const radius =
+        Math.min(W,H) * .075;
+
+
+    /*
+       Ánh sáng
+    */
+
+    const glow =
+        ctx.createRadialGradient(
+
+            x,
+            y,
+            0,
+
+            x,
+            y,
+            radius * 3
+
+        );
+
+
+    glow.addColorStop(
+
+        0,
+
+        "rgba(255,240,150,.55)"
+
+    );
+
+
+    glow.addColorStop(
+
+        .35,
+
+        "rgba(255,220,90,.22)"
+
+    );
+
+
+    glow.addColorStop(
+
+        1,
+
+        "rgba(255,220,90,0)"
+
+    );
+
+
+    ctx.fillStyle =
+        glow;
+
+
+    ctx.beginPath();
+
+
+    ctx.arc(
+
+        x,
+        y,
+        radius * 3,
+
+        0,
+        Math.PI * 2
+
+    );
+
+
+    ctx.fill();
+
+
+    /*
+       Tia nắng
+    */
+
+    ctx.save();
+
+
+    ctx.translate(
+        x,
+        y
+    );
+
+
+    ctx.strokeStyle =
+        "rgba(255,220,100,.35)";
+
+
+    ctx.lineWidth = 3;
+
+
+    for(
+
+        let i = 0;
+
+        i < 12;
+
+        i++
+
+    ){
+
+        const angle =
+            i * Math.PI / 6;
+
+
+        const r1 =
+            radius * 1.25;
+
+
+        const r2 =
+            radius * 1.65;
+
+
+        ctx.beginPath();
+
+
+        ctx.moveTo(
+
+            Math.cos(angle) * r1,
+
+            Math.sin(angle) * r1
+
+        );
+
+
+        ctx.lineTo(
+
+            Math.cos(angle) * r2,
+
+            Math.sin(angle) * r2
+
+        );
+
+
+        ctx.stroke();
+
+    }
+
+
+    ctx.restore();
+
+
+    /*
+       Mặt trời
+    */
+
+    const sun =
+        ctx.createRadialGradient(
+
+            x - radius*.25,
+
+            y - radius*.25,
+
+            0,
+
+            x,
+
+            y,
+
+            radius
+
+        );
+
+
+    sun.addColorStop(
+
+        0,
+
+        "#fffbd0"
+
+    );
+
+
+    sun.addColorStop(
+
+        .6,
+
+        "#ffe67a"
+
+    );
+
+
+    sun.addColorStop(
+
+        1,
+
+        "#ffc94d"
+
+    );
+
+
+    ctx.fillStyle =
+        sun;
+
+
+    ctx.shadowColor =
+        "rgba(255,215,80,.8)";
+
+
+    ctx.shadowBlur = 25;
+
+
+    ctx.beginPath();
+
+
+    ctx.arc(
+
+        x,
+        y,
+        radius,
+
+        0,
+        Math.PI * 2
+
+    );
+
+
+    ctx.fill();
+
+
+    ctx.shadowBlur = 0;
+
+}
+
+
+/* =====================================================
+   MÂY CỐ ĐỊNH
+===================================================== */
+
+function drawFixedCloud(
+
+    x,
+    y,
+    scale = 1,
+    alpha = .7
+
+){
+
+    ctx.save();
+
+
+    ctx.translate(
+        x,
+        y
+    );
+
+
+    ctx.scale(
+        scale,
+        scale
+    );
+
+
+    ctx.globalAlpha =
+        alpha;
+
+
+    ctx.fillStyle =
+        "#ffffff";
+
+
+    ctx.beginPath();
+
+
+    ctx.arc(
+
+        -40,
+        10,
+        22,
+
+        0,
+        Math.PI * 2
+
+    );
+
+
+    ctx.arc(
+
+        -15,
+        -7,
+        30,
+
+        0,
+        Math.PI * 2
+
+    );
+
+
+    ctx.arc(
+
+        17,
+        -3,
+        26,
+
+        0,
+        Math.PI * 2
+
+    );
+
+
+    ctx.arc(
+
+        40,
+        10,
+        18,
+
+        0,
+        Math.PI * 2
+
+    );
+
+
+    ctx.rect(
+
+        -40,
+        8,
+        80,
+        25
+
+    );
+
+
+    ctx.fill();
+
+
+    ctx.restore();
+
+
+    ctx.globalAlpha = 1;
+
+}
+
+
+/*
+   Những đám mây này KHÔNG di chuyển.
+*/
+
+function drawFixedCloudLayer(){
+
+    drawFixedCloud(
+
+        W * .15,
+        H * .18,
+        .95,
+        .62
+
+    );
+
+
+    drawFixedCloud(
+
+        W * .68,
+        H * .12,
+        .78,
+        .56
+
+    );
+
+
+    drawFixedCloud(
+
+        W * .86,
+        H * .43,
+        1.05,
+        .54
+
+    );
+
+
+    drawFixedCloud(
+
+        W * .13,
+        H * .68,
+        1.15,
+        .48
+
+    );
+
+
+    drawFixedCloud(
+
+        W * .56,
+        H * .84,
+        1.4,
+        .52
+
+    );
+
+}
+
+
+/* =====================================================
+   CHIM
+===================================================== */
+
+const dayBirds = [
+
+    {
+        name:"Diễm Quỳnh",
+        phase:0
+    },
+
+    {
+        name:"Tuyết Phi",
+        phase:1
+    },
+
+    {
+        name:"Nhã Thi",
+        phase:2
+    },
+
+    {
+        name:"Trúc Lam",
+        phase:3
+    },
+
+    {
+        name:"Thảo Vy",
+        phase:4
+    }
+
+];
+
+
+/*
+   Vị trí đội hình.
+
+   Diễm Quỳnh ở phía trước.
+
+       🐦
+     🐦 🐦
+   🐦   🐦
+
+*/
+
+function getFormationPoint(
+
+    index,
+    leaderX
+
+){
+
+    const mobile =
+        W < 600;
+
+
+    const gapX =
+        mobile
+        ? Math.min(W*.19,80)
+        : Math.min(W*.15,145);
+
+
+    const gapY =
+        mobile
+        ? 38
+        : 58;
+
+
+    const centerY =
+        H * .20;
+
+
+    if(index === 0){
+
+        return {
+
+            x:leaderX,
+
+            y:centerY
+
+        };
+
+    }
+
+
+    if(index === 1){
+
+        return {
+
+            x:
+                leaderX - gapX,
+
+            y:
+                centerY - gapY
+
+        };
+
+    }
+
+
+    if(index === 2){
+
+        return {
+
+            x:
+                leaderX - gapX,
+
+            y:
+                centerY + gapY
+
+        };
+
+    }
+
+
+    if(index === 3){
+
+        return {
+
+            x:
+                leaderX - gapX*2,
+
+            y:
+                centerY - gapY*1.65
+
+        };
+
+    }
+
+
+    return {
+
+        x:
+            leaderX - gapX*2,
+
+        y:
+            centerY + gapY*1.65
+
+    };
+
+}
+
+
+/* =====================================================
+   VẼ CHIM
+===================================================== */
+
+function drawBirdShape(
+
+    x,
+    y,
+    flap,
+    scale
+
+){
+
+    ctx.save();
+
+
+    ctx.translate(
+        x,
+        y
+    );
+
+
+    ctx.scale(
+        scale,
+        scale
+    );
+
+
+    ctx.strokeStyle =
+        "rgba(48,67,89,.95)";
+
+
+    ctx.lineWidth = 2.5;
+
+
+    ctx.lineCap =
+        "round";
+
+
+    ctx.beginPath();
+
+
+    /*
+       Cánh trái
+    */
+
+    ctx.moveTo(
+
+        -3,
+        0
+
+    );
+
+
+    ctx.quadraticCurveTo(
+
+        -15,
+
+        -12 - flap,
+
+        -29,
+
+        -4
+
+    );
+
+
+    /*
+       Cánh phải
+    */
+
+    ctx.moveTo(
+
+        3,
+        0
+
+    );
+
+
+    ctx.quadraticCurveTo(
+
+        15,
+
+        -12 + flap,
+
+        29,
+
+        -4
+
+    );
+
+
+    ctx.stroke();
+
+
+    ctx.restore();
+
+}
+
+
+/* =====================================================
+   CHIM + ĐÁM MÂY TÊN
+===================================================== */
+
+function drawBirdWithName(
+
+    bird,
+    index,
+    x,
+    y,
+    time
+
+){
+
+    const flap =
+
+        Math.sin(
+
+            time * .018 +
+
+            bird.phase
+
+        ) * 4;
+
+
+    const scale =
+
+        W < 600
+        ? .78
+        : .95;
+
+
+    ctx.save();
+
+
+    ctx.translate(
+        x,
+        y
+    );
+
+
+    /*
+       Mây nhỏ dưới chim
+    */
+
+    ctx.globalAlpha =
+        .96;
+
+
+    ctx.fillStyle =
+        "rgba(255,255,255,.96)";
+
+
+    ctx.beginPath();
+
+
+    ctx.arc(
+
+        -28,
+        13,
+        13,
+
+        0,
+        Math.PI * 2
+
+    );
+
+
+    ctx.arc(
+
+        -10,
+        5,
+        18,
+
+        0,
+        Math.PI * 2
+
+    );
+
+
+    ctx.arc(
+
+        12,
+        7,
+        17,
+
+        0,
+        Math.PI * 2
+
+    );
+
+
+    ctx.arc(
+
+        29,
+        14,
+        12,
+
+        0,
+        Math.PI * 2
+
+    );
+
+
+    ctx.rect(
+
+        -28,
+        12,
+        57,
+        15
+
+    );
+
+
+    ctx.fill();
+
+
+    /*
+       Chim
+    */
+
+    drawBirdShape(
+
+        0,
+        -5,
+        flap,
+        scale
+
+    );
+
+
+    /*
+       Tên
+    */
+
+    ctx.fillStyle =
+        "#354b63";
+
+
+    ctx.textAlign =
+        "center";
+
+
+    ctx.textBaseline =
+        "middle";
+
+
+    ctx.font =
+
+        index === 0
+
+        ? (
+            W < 600
+            ? "700 10px Segoe UI, Arial"
+            : "700 13px Segoe UI, Arial"
+        )
+
+        : (
+
+            W < 600
+            ? "600 9px Segoe UI, Arial"
+            : "600 12px Segoe UI, Arial"
+
+        );
+
+
+    ctx.shadowColor =
+        "rgba(255,255,255,.9)";
+
+
+    ctx.shadowBlur = 3;
+
+
+    ctx.fillText(
+
+        bird.name,
+
+        0,
+
+        16
+
+    );
+
+
+    ctx.restore();
+
+}
+
+
+/* =====================================================
+   BAY ĐỘI HÌNH TAM GIÁC
+===================================================== */
+
+let formationX = -220;
+
+
+function drawTriangleFormation(
+
+    time,
+    dt
+
+){
+
+    /*
+       Tốc độ nhanh hơn phiên bản trước.
+    */
+
+    const speed =
+
+        W < 600
+
+        ? 1.45
+
+        : 1.85;
+
+
+    formationX +=
+        speed * dt;
+
+
+    const formationWidth =
+
+        W < 600
+
+        ? W*.55
+
+        : W*.48;
+
+
+    /*
+       Bay hết màn hình thì quay lại bên trái.
+    */
+
+    if(
+
+        formationX >
+
+        W + formationWidth + 180
+
+    ){
+
+        formationX =
+
+            -formationWidth - 180;
+
+    }
+
+
+    const leaderX =
+
+        formationX +
+        formationWidth;
+
+
+    /*
+       Khu vực chữ ở giữa.
+
+       Chim không được bay xuyên qua vùng này.
+    */
+
+    const safeTop =
+        H * .34;
+
+
+    const safeBottom =
+        H * .67;
+
+
+    dayBirds.forEach(
+
+        (bird,index)=>{
+
+            const p =
+
+                getFormationPoint(
+
+                    index,
+
+                    leaderX
+
+                );
+
+
+            let y =
+                p.y;
+
+
+            /*
+               Nếu đội hình tiến vào vùng chữ,
+               đưa đội hình lên cao hơn.
+            */
+
+            if(
+
+                y > safeTop &&
+
+                y < safeBottom
+
+            ){
+
+                y =
+                    H * .18 -
+                    index * 5;
+
+            }
+
+
+            drawBirdWithName(
+
+                bird,
+
+                index,
+
+                p.x,
+
+                y,
+
+                time
+
+            );
+
+        }
+
+    );
+
+}
+
+
+/* =====================================================
+   SAO BAN ĐÊM
+===================================================== */
+
+const backgroundStars = [];
+
+
+function createBackgroundStars(){
+
+    backgroundStars.length = 0;
+
+
+    const amount =
+
+        Math.min(
+
+            220,
+
+            Math.floor(
+
+                W * H / 6500
+
+            )
+
+        );
+
+
+    for(
+
+        let i=0;
+
+        i<amount;
+
+        i++
+
+    ){
+
+        backgroundStars.push({
+
+            x:
+                Math.random()*W,
+
+            y:
+                Math.random()*H,
+
+            size:
+                Math.random()*1.4+.3,
+
+            alpha:
+                Math.random()*.7+.2,
+
+            phase:
+                Math.random()*
+                Math.PI*2,
+
+            speed:
+                Math.random()*.02+.005
+
+        });
+
+    }
+
+}
+
+
+/* =====================================================
+   PHÁO HOA
+===================================================== */
+
+const fireworks = [];
+
+const fireworkParticles = [];
+
+
+const fireworkColors = [
+
+    "#ff4d6d",
+
+    "#ff8c42",
+
+    "#ffe066",
+
+    "#4dd9ff",
+
+    "#7cff6b",
+
+    "#c77dff",
+
+    "#ffffff"
+
+];
+
+
+class Firework{
+
+    constructor(){
+
+        this.x =
+
+            W*.08 +
+
+            Math.random()*
+            W*.84;
+
+
+        this.y =
+            H+30;
+
+
+        this.targetY =
+
+            H*.08 +
+
+            Math.random()*
+            H*.43;
+
+
+        this.speed =
+
+            5.5 +
+
+            Math.random()*1.8;
+
+
+        this.color =
+
+            fireworkColors[
+
+                Math.floor(
+
+                    Math.random()*
+                    fireworkColors.length
+
+                )
+
+            ];
+
+
+        this.trail = [];
+
+        this.dead = false;
+
+    }
+
+
+    update(){
+
+        this.y -=
+            this.speed;
+
+
+        this.trail.push({
+
+            x:this.x,
+
+            y:this.y
+
+        });
+
+
+        if(
+            this.trail.length > 15
+        ){
+
+            this.trail.shift();
+
+        }
+
+
+        if(
+
+            this.y <=
+            this.targetY
+
+        ){
+
+            this.explode();
+
+            this.dead = true;
+
+        }
+
+    }
+
+
+    explode(){
+
+        const amount =
+
+            W < 600
+            ? 55
+            : 90;
+
+
+        for(
+
+            let i=0;
+
+            i<amount;
+
+            i++
+
+        ){
+
+            const angle =
+
+                Math.random()*
+                Math.PI*2;
+
+
+            const speed =
+
+                1.5 +
+                Math.random()*4;
+
+
+            fireworkParticles.push({
+
+                x:this.x,
+
+                y:this.y,
+
+                vx:
+                    Math.cos(angle)*
+                    speed,
+
+                vy:
+                    Math.sin(angle)*
+                    speed,
+
+                gravity:.035,
+
+                drag:.985,
+
+                life:1,
+
+                decay:
+                    .008+
+                    Math.random()*.008,
+
+                size:
+                    Math.random()*1.8+.7,
+
+                color:
+                    this.color
+
+            });
+
+        }
+
+    }
+
+
+    draw(){
+
+        for(
+
+            let i=0;
+
+            i<this.trail.length;
+
+            i++
+
+        ){
+
+            const p =
+                this.trail[i];
+
+
+            ctx.globalAlpha =
+
+                i/
+                this.trail.length*
+                .7;
+
+
+            ctx.fillStyle =
+                this.color;
+
+
+            ctx.beginPath();
+
+
+            ctx.arc(
+
+                p.x,
+
+                p.y,
+
+                1.5,
+
+                0,
+
+                Math.PI*2
+
+            );
+
+
+            ctx.fill();
+
+        }
+
+
+        ctx.globalAlpha = 1;
+
+
+        ctx.fillStyle =
+            this.color;
+
+
+        ctx.shadowColor =
+            this.color;
+
+
+        ctx.shadowBlur = 12;
+
+
+        ctx.beginPath();
+
+
+        ctx.arc(
+
+            this.x,
+
+            this.y,
+
+            2.5,
+
+            0,
+
+            Math.PI*2
+
+        );
+
+
+        ctx.fill();
+
+
+        ctx.shadowBlur = 0;
+
+    }
+
+}
+
+
+/* =====================================================
+   PARTICLE
+===================================================== */
+
+function updateFireworkParticles(){
+
+    for(
+
+        let i =
+            fireworkParticles.length-1;
+
+        i>=0;
+
+        i--
+
+    ){
+
+        const p =
+            fireworkParticles[i];
+
+
+        p.x +=
+            p.vx;
+
+
+        p.y +=
+            p.vy;
+
+
+        p.vx *=
+            p.drag;
+
+
+        p.vy *=
+            p.drag;
+
+
+        p.vy +=
+            p.gravity;
+
+
+        p.life -=
+            p.decay;
+
+
+        if(
+
+            p.life <= 0
+
+        ){
+
+            fireworkParticles.splice(
+
+                i,
+
+                1
+
+            );
+
+        }
+
+    }
+
+}
+
+
+function drawFireworkParticles(){
+
+    for(
+
+        const p of
+        fireworkParticles
+
+    ){
+
+        ctx.globalAlpha =
+            Math.max(
+                0,
+                p.life
+            );
+
+
+        ctx.fillStyle =
+            p.color;
+
+
+        ctx.shadowColor =
+            p.color;
+
+
+        ctx.shadowBlur = 7;
+
+
+        ctx.beginPath();
+
+
+        ctx.arc(
+
+            p.x,
+
+            p.y,
+
+            p.size,
+
+            0,
+
+            Math.PI*2
+
+        );
+
+
+        ctx.fill();
+
+    }
+
+
+    ctx.globalAlpha = 1;
+
+    ctx.shadowBlur = 0;
+
+}
+
+
+/* =====================================================
+   SAO + TÊN BAN ĐÊM
+===================================================== */
+
+const nameRockets = [];
+
+const nameExplosions = [];
+
+let nameIndex = 0;
+
+
+function drawStar(
+
+    x,
+    y,
+    size,
+    alpha=1
+
+){
+
+    ctx.save();
+
+
+    ctx.translate(
+        x,
+        y
+    );
+
+
+    ctx.globalAlpha =
+        alpha;
+
+
+    ctx.fillStyle =
+        "#FFD83D";
+
+
+    ctx.shadowColor =
+        "#FFD83D";
+
+
+    ctx.shadowBlur = 18;
+
+
+    ctx.beginPath();
+
+
+    for(
+
+        let i=0;
+
+        i<10;
+
+        i++
+
+    ){
+
+        const angle =
+
+            -Math.PI/2 +
+
+            i*Math.PI/5;
+
+
+        const radius =
+
+            i%2===0
+
+            ? size
+
+            : size*.4;
+
+
+        const px =
+
+            Math.cos(angle)*
+            radius;
+
+
+        const py =
+
+            Math.sin(angle)*
+            radius;
+
+
+        if(i===0){
+
+            ctx.moveTo(
+                px,
+                py
+            );
+
+        }
+
+        else{
+
+            ctx.lineTo(
+                px,
+                py
+            );
+
+        }
+
+    }
+
+
+    ctx.closePath();
+
+    ctx.fill();
+
+    ctx.restore();
+
+}
+
+
+/* =====================================================
+   VỊ TRÍ TÊN BAN ĐÊM
+===================================================== */
+
+function getNightPosition(index){
+
+    const mobile =
+        W < 600;
+
+
+    const positions =
+
+        mobile
+
+        ? [
+
+            {
+                x:W*.50,
+                y:H*.12
+            },
+
+            {
+                x:W*.18,
+                y:H*.23
+            },
+
+            {
+                x:W*.82,
+                y:H*.23
+            },
+
+            {
+                x:W*.20,
+                y:H*.80
+            },
+
+            {
+                x:W*.80,
+                y:H*.80
+            }
+
+        ]
+
+        : [
+
+            {
+                x:W*.50,
+                y:H*.12
+            },
+
+            {
+                x:W*.17,
+                y:H*.22
+            },
+
+            {
+                x:W*.83,
+                y:H*.22
+            },
+
+            {
+                x:W*.17,
+                y:H*.82
+            },
+
+            {
+                x:W*.83,
+                y:H*.82
+            }
+
+        ];
+
+
+    return positions[index];
+
+}
+
+
+/* =====================================================
+   ROCKET TÊN
+===================================================== */
+
+class NameRocket{
+
+    constructor(
+
+        name,
+        index
+
+    ){
+
+        this.name =
+            name;
+
+
+        const target =
+            getNightPosition(
+                index
+            );
+
+
+        this.targetX =
+            target.x;
+
+
+        this.targetY =
+            target.y;
+
+
+        this.x =
+            this.targetX;
+
+
+        this.y =
+            H+40;
+
+
+        this.speed =
+            3.5+
+            Math.random()*1.3;
+
+
+        this.trail = [];
+
+        this.dead = false;
+
+    }
+
+
+    update(){
+
+        this.y -=
+            this.speed;
+
+
+        this.trail.push({
+
+            x:this.x,
+
+            y:this.y
+
+        });
+
+
+        if(
+            this.trail.length>12
+        ){
+
+            this.trail.shift();
+
+        }
+
+
+        if(
+
+            this.y <=
+            this.targetY
+
+        ){
+
+            this.dead = true;
+
+
+            createNameExplosion(
+
+                this.targetX,
+
+                this.targetY,
+
+                this.name
+
+            );
+
+        }
+
+    }
+
+
+    draw(){
+
+        for(
+
+            let i=0;
+
+            i<this.trail.length;
+
+            i++
+
+        ){
+
+            const p =
+                this.trail[i];
+
+
+            ctx.globalAlpha =
+
+                (
+                    i/
+                    this.trail.length
+                )*.5;
+
+
+            ctx.fillStyle =
+                "#FFD83D";
+
+
+            ctx.beginPath();
+
+
+            ctx.arc(
+
+                p.x,
+
+                p.y,
+
+                1.4,
+
+                0,
+
+                Math.PI*2
+
+            );
+
+
+            ctx.fill();
+
+        }
+
+
+        ctx.globalAlpha=1;
+
+
+        drawStar(
+
+            this.x,
+
+            this.y,
+
+            7
+
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   NỔ TÊN
+===================================================== */
+
+function createNameExplosion(
+
+    x,
+    y,
+    name
+
+){
+
+    const stars = [];
+
+
+    const amount =
+
+        W<600
+        ? 75
+        : 120;
+
+
+    for(
+
+        let i=0;
+
+        i<amount;
+
+        i++
+
+    ){
+
+        const angle =
+
+            Math.random()*
+            Math.PI*2;
+
+
+        const speed =
+
+            1.5+
+            Math.random()*4.8;
+
+
+        stars.push({
+
+            x:x,
+
+            y:y,
+
+            vx:
+                Math.cos(angle)*
+                speed,
+
+            vy:
+                Math.sin(angle)*
+                speed,
+
+            size:
+                Math.random()*3+1,
+
+            life:1,
+
+            drag:.985,
+
+            gravity:
+                .008+
+                Math.random()*.012
+
+        });
+
+    }
+
+
+    nameExplosions.push({
+
+        x:x,
+
+        y:y,
+
+        name:name,
+
+        stars:stars,
+
+        flash:1
+
+    });
+
+}
+
+
+/* =====================================================
+   UPDATE NỔ
+===================================================== */
+
+function updateNameExplosions(){
+
+    for(
+
+        const explosion of
+        nameExplosions
+
+    ){
+
+        explosion.flash *= .92;
+
+
+        for(
+
+            const s of
+            explosion.stars
+
+        ){
+
+            s.x +=
+                s.vx;
+
+
+            s.y +=
+                s.vy;
+
+
+            s.vx *=
+                s.drag;
+
+
+            s.vy *=
+                s.drag;
+
+
+            s.vy +=
+                s.gravity;
+
+
+            s.life =
+
+                Math.max(
+
+                    .45,
+
+                    s.life-.004
+
+                );
+
+        }
+
+    }
+
+}
+
+
+/* =====================================================
+   VẼ TÊN
+===================================================== */
+
+function drawNameExplosions(){
+
+    for(
+
+        const explosion of
+        nameExplosions
+
+    ){
+
+        if(
+
+            explosion.flash>.03
+
+        ){
+
+            const radius =
+
+                25+
+
+                (
+                    1-
+                    explosion.flash
+                )*90;
+
+
+            const gradient =
+
+                ctx.createRadialGradient(
+
+                    explosion.x,
+
+                    explosion.y,
+
+                    0,
+
+                    explosion.x,
+
+                    explosion.y,
+
+                    radius
+
+                );
+
+
+            gradient.addColorStop(
+
+                0,
+
+                `rgba(
+                    255,
+                    255,
+                    210,
+                    ${explosion.flash}
+                )`
+
+            );
+
+
+            gradient.addColorStop(
+
+                .25,
+
+                `rgba(
+                    255,
+                    220,
+                    50,
+                    ${explosion.flash*.55}
+                )`
+
+            );
+
+
+            gradient.addColorStop(
+
+                1,
+
+                "rgba(255,210,0,0)"
+
+            );
+
+
+            ctx.fillStyle =
+                gradient;
+
+
+            ctx.beginPath();
+
+
+            ctx.arc(
+
+                explosion.x,
+
+                explosion.y,
+
+                radius,
+
+                0,
+
+                Math.PI*2
+
+            );
+
+
+            ctx.fill();
+
+        }
+
+
+        for(
+
+            const s of
+            explosion.stars
+
+        ){
+
+            drawStar(
+
+                s.x,
+
+                s.y,
+
+                s.size,
+
+                s.life
+
+            );
+
+        }
+
+
+        /*
+           Tên luôn ở giữa vụ nổ.
+        */
+
+        ctx.save();
+
+
+        ctx.font =
+
+            `bold ${
+                Math.max(
+                    19,
+                    W*.022
+                )
+            }px Segoe UI, Arial, sans-serif`;
+
+
+        ctx.textAlign =
+            "center";
+
+
+        ctx.textBaseline =
+            "middle";
+
+
+        ctx.fillStyle =
+            "#FFFBE0";
+
+
+        ctx.shadowColor =
+            "#FFD83D";
+
+
+        ctx.shadowBlur = 22;
+
+
+        ctx.fillText(
+
+            explosion.name,
+
+            explosion.x,
+
+            explosion.y
+
+        );
+
+
+        ctx.restore();
+
+    }
+
+}
+
+
+/* =====================================================
+   PHÓNG PHÁO HOA + TÊN
+===================================================== */
+
+function launchBoth(){
+
+    /*
+       Ban ngày không có pháo hoa.
+    */
+
+    if(isDay){
+
+        return;
+
+    }
+
+
+    fireworks.push(
+
+        new Firework()
+
+    );
+
+
+    const index =
+
+        nameIndex %
+        names.length;
+
+
+    nameRockets.push(
+
+        new NameRocket(
+
+            names[index],
+
+            index
+
+        )
+
+    );
+
+
+    nameIndex++;
+
+}
+
+
+/* =====================================================
+   CLICK
+===================================================== */
+
+window.addEventListener(
+
+    "pointerdown",
+
+    ()=>{
+
+        if(!isDay){
+
+            launchBoth();
+
+        }
+
+    }
+
+);
+
+
+/* =====================================================
+   ANIMATION
+===================================================== */
+
+let lastTime =
+    performance.now();
+
+
+function animate(now){
+
+    const dt =
+
+        Math.min(
+
+            (now-lastTime)/16.67,
+
+            2
+
+        );
+
+
+    lastTime =
+        now;
+
+
+    /* =================================================
+       BAN NGÀY
+    ================================================= */
+
+    if(isDay){
+
+        /*
+           Bầu trời
+        */
+
+        const sky =
+
+            ctx.createLinearGradient(
+
+                0,
+                0,
+
+                0,
+                H
+
+            );
+
+
+        sky.addColorStop(
+
+            0,
+
+            "#72c9ff"
+
+        );
+
+
+        sky.addColorStop(
+
+            .55,
+
+            "#bdeaff"
+
+        );
+
+
+        sky.addColorStop(
+
+            1,
+
+            "#eaf8ff"
+
+        );
+
+
+        ctx.fillStyle =
+            sky;
+
+
+        ctx.fillRect(
+
+            0,
+            0,
+            W,
+            H
+
+        );
+
+
+        /*
+           Mặt trời
+        */
+
+        drawSun();
+
+
+        /*
+           MÂY CỐ ĐỊNH
+        */
+
+        drawFixedCloudLayer();
+
+
+        /*
+           ĐỘI HÌNH TAM GIÁC
+        */
+
+        drawTriangleFormation(
+
+            now,
+
+            dt
+
+        );
+
+    }
+
+
+    /* =================================================
+       BAN ĐÊM
+    ================================================= */
+
+    else{
+
+        /*
+           Nền đêm
+        */
+
+        ctx.fillStyle =
+            "rgba(1,3,11,.20)";
+
+
+        ctx.fillRect(
+
+            0,
+            0,
+            W,
+            H
+
+        );
+
+
+        /*
+           Sao nền
+        */
+
+        for(
+
+            const s of
+            backgroundStars
+
+        ){
+
+            s.phase +=
+                s.speed*dt;
+
+
+            const alpha =
+
+                s.alpha+
+
+                Math.sin(
+                    s.phase
+                )*.15;
+
+
+            ctx.globalAlpha =
+                alpha;
+
+
+            ctx.fillStyle =
+                "#ffffff";
+
+
+            ctx.beginPath();
+
+
+            ctx.arc(
+
+                s.x,
+
+                s.y,
+
+                s.size,
+
+                0,
+
+                Math.PI*2
+
+            );
+
+
+            ctx.fill();
+
+        }
+
+
+        ctx.globalAlpha=1;
+
+
+        /*
+           Pháo hoa
+        */
+
+        for(
+
+            let i=
+                fireworks.length-1;
+
+            i>=0;
+
+            i--
+
+        ){
+
+            const f =
+                fireworks[i];
+
+
+            f.update();
+
+
+            f.draw();
+
+
+            if(f.dead){
+
+                fireworks.splice(
+
+                    i,
+
+                    1
+
+                );
+
+            }
+
+        }
+
+
+        updateFireworkParticles();
+
+
+        drawFireworkParticles();
+
+
+        /*
+           Tên bay lên
+        */
+
+        for(
+
+            let i=
+                nameRockets.length-1;
+
+            i>=0;
+
+            i--
+
+        ){
+
+            const r =
+                nameRockets[i];
+
+
+            r.update();
+
+
+            r.draw();
+
+
+            if(r.dead){
+
+                nameRockets.splice(
+
+                    i,
+
+                    1
+
+                );
+
+            }
+
+        }
+
+
+        updateNameExplosions();
+
+
+        drawNameExplosions();
+
+    }
+
+
+    requestAnimationFrame(
+
+        animate
+
+    );
+
+}
+
+
+/* =====================================================
+   KHỞI ĐỘNG
+===================================================== */
+
+resize();
+
+createBackgroundStars();
+
+updateTimeMode();
+
+animate(
+    performance.now()
+);
+
+
+/* =====================================================
+   PHÁO HOA TỰ ĐỘNG BAN ĐÊM
+===================================================== */
+
+setTimeout(
+
+    launchBoth,
+
+    800
+
+);
+
+
+setTimeout(
+
+    launchBoth,
+
+    2700
+
+);
+
+
+setTimeout(
+
+    launchBoth,
+
+    4600
+
+);
+
+
+setTimeout(
+
+    launchBoth,
+
+    6500
+
+);
+
+
+setTimeout(
+
+    launchBoth,
+
+    8400
+
+);
+
+</script>
+
+
+</body>
+
+</html>
